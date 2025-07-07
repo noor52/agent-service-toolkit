@@ -17,4 +17,4 @@ COPY src/schema/ ./schema/
 COPY src/service/ ./service/
 COPY src/run_service.py .
 
-CMD ["python", "run_service.py"]
+CMD ["uvicorn", "service:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
