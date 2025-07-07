@@ -1,0 +1,33 @@
+@echo off
+echo Starting AI Agent Service Toolkit...
+echo.
+
+echo Checking if virtual environment exists...
+if not exist ".venv" (
+    echo Creating virtual environment...
+    python -m venv .venv
+)
+
+echo Activating virtual environment...
+call .venv\Scripts\activate.bat
+
+echo Installing/updating dependencies...
+pip install uv
+uv sync --frozen
+
+echo Starting FastAPI service...
+start "FastAPI Service" cmd /k "python src\run_service.py"
+
+echo Waiting for service to start...
+timeout /t 5 /nobreak > nul
+
+echo Starting Streamlit app...
+start "Streamlit App" cmd /k "streamlit run src\streamlit_app.py"
+
+echo.
+echo Services are starting...
+echo FastAPI service: http://localhost:8080
+echo Streamlit app: http://localhost:8501
+echo.
+echo Press any key to exit...
+pause
