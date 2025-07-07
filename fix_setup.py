@@ -3,11 +3,10 @@
 AI Agent Service Toolkit - Setup Fix Script
 This script helps diagnose and fix common setup issues.
 """
-
-import os
 import sys
+import os
 import subprocess
-import json
+import socket
 from pathlib import Path
 
 def check_python_version():
@@ -43,7 +42,7 @@ def check_env_file():
                 f.write("ANTHROPIC_API_KEY=\n")
                 f.write("GOOGLE_API_KEY=\n")
                 f.write("GROQ_API_KEY=\n")
-                f.write("USE_FAKE_MODEL=true\n")
+
             print("✓ Created basic .env file")
     
     # Check for API keys
@@ -60,10 +59,12 @@ def check_env_file():
     ]
     
     for pattern in key_patterns:
-        if pattern in content:
-            line = [line for line in content.split('\n') if line.startswith(pattern)][0]
-            if '=' in line and line.split('=', 1)[1].strip():
-                api_keys_found.append(pattern.replace('=', ''))
+        for line in content.split('\n'):
+            if line.startswith(pattern):
+                if '=' in line and line.split('=', 1)[1].strip():
+                    api_keys_found.append(pattern.rstrip('='))
+                if pattern == "USE_FAKE_MODEL=true":
+                    api_keys_found.append("USE_FAKE_MODEL")
     
     if not api_keys_found:
         print("⚠️  WARNING: No API keys found in .env file!")
@@ -110,7 +111,6 @@ def install_dependencies():
 
 def check_ports():
     """Check if required ports are available."""
-    import socket
     
     ports_to_check = [8080, 8501]
     
@@ -175,7 +175,7 @@ APP_PID=$!
 
 echo
 echo "Services are running:"
-echo "FastAPI service: http://localhost:8080"
+echo "FastAPI service: http://localhost:8081"
 echo "Streamlit app: http://localhost:8501"
 echo
 echo "Press Ctrl+C to stop all services"
@@ -212,7 +212,13 @@ def main():
         return False
     
     # Check and fix .env file
-    if not check_env_file():
+    try:
+        if not check_env_file():
+            print("Please fix your .env file first")
+            return False
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        print("Please check your .env configuration")
         return False
     
     # Install dependencies
