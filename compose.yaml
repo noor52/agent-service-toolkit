@@ -51,6 +51,7 @@ services:
         - path: src/memory/
           action: sync+restart
           target: /app/memory/
+
   streamlit_app:
     build:
       context: .
@@ -69,13 +70,13 @@ services:
     develop:
       watch:
         - path: src/client/
-          action: sync+restart
+          action: sync
           target: /app/client/
         - path: src/schema/
-          action: sync+restart
+          action: sync
           target: /app/schema/
         - path: src/streamlit_app.py
-          action: sync+restart
+          action: sync
           target: /app/streamlit_app.py
 
 volumes:
